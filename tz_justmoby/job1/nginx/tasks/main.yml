@@ -1,0 +1,26 @@
+---
+- name: Update repositories cache and install nginx package
+  ansible.builtin.apt:
+    name: ['nginx', 'certbot', 'python3-certbot-nginx']
+    state: present
+- name: Configure nginx main configuration file
+  template:
+    src=templates/nginx.conf
+    dest=/etc/nginx/nginx.conf
+- name: Configure nginx default configuration file
+  template:
+    src=templates/default
+    dest=/etc/nginx/sites-available/default
+- name: Configure ulimits for www-data
+  pam_limits:
+    domain: www-data
+    limit_type: "{{item.limit_type}}"
+    limit_item: "{{item.limit_item}}"
+    value: "{{item.value}}"
+  with_items:
+    - { limit_type: 'soft', limit_item: 'nofile', value: 65536 }
+    - { limit_type: 'hard', limit_item: 'nofile', value: 131072 }
+- name: Service nginx restart
+  systemd:
+    name: nginx
+    state: restarted

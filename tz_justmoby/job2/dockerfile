@@ -1,0 +1,27 @@
+# образ для мавен
+FROM maven:3.6.3-jdk-11
+
+# окружение
+ENV APP_HOME /app
+ENV MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+
+# создаем директорию для приложения
+RUN mkdir -p $APP_HOME
+
+# Копируем pom в директорию с проектом
+COPY pom.xml $APP_HOME/
+
+# Копируем все файлы из текущей директории
+COPY . $APP_HOME/
+
+# прописываем в path рабочую директорию
+WORKDIR $APP_HOME
+
+# делам сборку мавен
+RUN mvn clean package
+
+# Копируем собранный jar в директорию target
+RUN mv target/*.jar /target/
+
+# Определяем точку входа для запуска jar файла
+ENTRYPOINT ["java", "-jar", "/target/your-app.jar"]

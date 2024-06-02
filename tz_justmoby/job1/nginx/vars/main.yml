@@ -1,0 +1,6 @@
+worker_rlimit_nofile: 131072
+worker_aio_requests: 64
+worker_connections: 768
+sendfile_max_chunk: 1m
+output_buffers: 16
+client_max_body_size: 16m
